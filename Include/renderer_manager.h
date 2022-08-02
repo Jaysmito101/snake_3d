@@ -5,7 +5,9 @@
 
 bool renderer_init();
 
-void renderer_render();
+void renderer_update_game_board(int* old_board, int* new_board);
+
+void renderer_render(float animation_percentage);
 
 void renderer_shutdown();
 

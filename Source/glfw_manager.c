@@ -5,6 +5,7 @@
 bool _glfw_is_initiated = false;
 GLFWwindow* _glfw_main_window = NULL;
 void(*_glfw_mouse_input_handler)(int, int, int) = NULL;
+void(*_glfw_key_input_handler)(int) = NULL;
 
 // This function will be used by glfw to report any internal errors
 static void __glfw_error_callback(int error, const char* description)
@@ -22,6 +23,15 @@ static void __glfw_mouse_move_callback(GLFWwindow* window, double mouse_x, doubl
 			(int)mouse_x,
 			(int)mouse_y
 			);
+	}
+}
+
+// the glfw key press callback function
+static void __glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (_glfw_key_input_handler)
+	{
+		_glfw_key_input_handler(key);
 	}
 }
 
@@ -109,6 +119,23 @@ void glfw_set_mouse_input_handler(void(*function)(int, int, int))
 	}
 
 	_glfw_mouse_input_handler = function;
+}
+
+void glfw_set_key_input_handler(void(*function)(int))
+{
+	// if thw window has not yet been setup there is no point in setting up input handlers
+	if (!_glfw_main_window)
+		return;
+
+	// if no input handler has been set that means this is the first time this
+	// function is being called thus first it is needed to call the underlaying
+	// glfw functions to setup the underlyaing callbacks
+	if (!_glfw_key_input_handler)
+	{
+		glfwSetKeyCallback(_glfw_main_window, __glfw_key_callback);
+	}
+
+	_glfw_key_input_handler = function;
 }
 
 // poll the events and swap the buffers (if not called continously the window will show up as not responding)
