@@ -33,6 +33,11 @@ uint32_t ogl_create_shader(const char* sc, GLenum type)
 		GLint maxLength = 0;
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
 		char* errorLog = malloc(sizeof(char) * maxLength);
+		if (!errorLog)
+		{
+			printf("malloc failed");
+			exit(EXIT_FAILURE);
+		}
 		errorLog[0] = 0;
 		glGetShaderInfoLog(shader, maxLength, &maxLength, errorLog);
 		printf("Error in Compiling Shader : \n");
@@ -63,6 +68,11 @@ uint32_t ogl_create_shader_program(const char* vertex_shader_source, const char*
 		GLint maxLength = 0;
 		glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
 		char* errorLog = malloc(sizeof(char) * maxLength);
+		if (!errorLog)
+		{
+			printf("malloc failed");
+			exit(EXIT_FAILURE);
+		}
 		errorLog[0] = 0;
 		glGetProgramInfoLog(shader, maxLength, &maxLength, errorLog);
 		printf("Error in Compiling Shader : ");
@@ -77,6 +87,37 @@ uint32_t ogl_create_shader_program(const char* vertex_shader_source, const char*
 	return shader;
 }
 
+uint32_t ogl_create_texture(uint64_t width, uint64_t height, GLenum format, GLenum internal_format, GLenum data_type)
+{
+	uint32_t tex = 0;
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, format, data_type, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	return tex;
+}
+
+ogl_framebuffer_t ogl_create_framebuffer(uint64_t width, uint64_t height)
+{
+	ogl_framebuffer_t fbo;
+	glGenFramebuffers(1, &fbo.handle);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo.handle);
+	fbo.color = ogl_create_texture(width, height, GL_RGBA, GL_RGBA, GL_FLOAT);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo.color, 0);
+	fbo.depth = ogl_create_texture(width, height, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, fbo.depth, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	return fbo;
+}
+
+
+void ogl_destroy_framebuffer(ogl_framebuffer_t fbo)
+{
+	glDeleteTextures(1, &fbo.color);
+	glDeleteTextures(1, &fbo.depth);
+	glDeleteFramebuffers(1, &fbo.handle);
+}
 
 // dows nothing now maybe for future
 void ogl_shutdown()

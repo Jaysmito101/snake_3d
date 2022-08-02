@@ -4,9 +4,14 @@
 #include "renderer_manager.h"
 #include "game_manager.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 #include <GLFW/glfw3.h>
 
 int _input = GAME_DIR_UP;
+bool _running = true;
 
 void on_mouse(int mouse_button, int mouse_x, int mouse_y)
 {
@@ -33,6 +38,8 @@ void on_key(int button)
 	case GLFW_KEY_D:
 		_input = GAME_DIR_RIGHT;
 		break;
+	case GLFW_KEY_ESCAPE:
+		_running = false;
 	default:
 		break;
 	}
@@ -40,6 +47,10 @@ void on_key(int button)
 
 int main(int argc, char** argv, char** envp)
 {
+#ifdef _WIN32
+	FreeConsole();
+#endif
+
 	if (!glfw_init())
 		exit(EXIT_FAILURE);
 	if(!glfw_setup_window("Snake [Jaysmito Mukherjee]"))
@@ -57,12 +68,12 @@ int main(int argc, char** argv, char** envp)
 	game_init(board);
 
 	double previousTime = glfwGetTime();
-	double timerDefault = 1.0f;
+	double timerDefault = 0.2f;
 	double timer = timerDefault;
 	double animPercent = 0.0f;
 	bool playing = true;
 
-	while (!glfw_should_window_close())
+	while (_running  && !glfw_should_window_close())
 	{
 		double currentTime = glfwGetTime();
 		double deltaTime = currentTime - previousTime;

@@ -9,7 +9,7 @@ bool game_init(int* board)
 {
 	static_assert(BOARD_SIZE >= 4, "BOARD_SIZE must be >= 4");
 	memset(board, 0, sizeof(int) * BOARD_SIZE * BOARD_SIZE);
-	memset(_game_snake_body, BOARD_SIZE * BOARD_SIZE, sizeof(int) * BOARD_SIZE * BOARD_SIZE);
+	memset(_game_snake_body, 0, sizeof(int) * BOARD_SIZE * BOARD_SIZE);
 	board[(BOARD_SIZE / 2) * BOARD_SIZE + (BOARD_SIZE / 2)] = GAME_DIR_UP;
 	board[(BOARD_SIZE / 2 + 1) * BOARD_SIZE + (BOARD_SIZE / 2)] = GAME_DIR_UP;
 	board[(BOARD_SIZE / 2 + 2) * BOARD_SIZE + (BOARD_SIZE / 2)] = GAME_DIR_UP;
@@ -39,7 +39,6 @@ int game_generate_fruit(int* board)
 		{
 			board[pos] = GAME_FRUIT;
 			_game_fruit_location = pos;
-			printf("%d \n", pos);
 			break;
 		}
 	}
@@ -77,8 +76,8 @@ bool game_update(int* old_board, int input)
 		old_board[newHead] = GAME_EMPTY;
 		_game_snake_body[_game_snake_length] = tail;
 		_game_snake_length += 1;
+		_game_fruit_location = -1;
 		require_new_fruit = true;
-		game_generate_fruit(old_board);
 	}
 	if (old_board[newHead] != GAME_EMPTY)
 		return false;
@@ -99,6 +98,8 @@ bool game_update(int* old_board, int input)
 		old_board[oldHead] = GAME_EMPTY; // clear orev head position
 		_game_snake_body[0] = newHead;
 	}
+	if(require_new_fruit)
+		game_generate_fruit(old_board);
 	return true;
 }
 

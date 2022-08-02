@@ -3,14 +3,14 @@
 
 #include "core.h"
 
-#define BOARD_SIZE 16
+#define BOARD_SIZE			  16
 
-#define GAME_FRUIT       -1
-#define GAME_EMPTY        0
-#define GAME_DIR_UP       1
-#define GAME_DIR_DOWN     2
-#define GAME_DIR_LEFT     3
-#define GAME_DIR_RIGHT    4
+#define GAME_FRUIT		     -1
+#define GAME_EMPTY			  0
+#define GAME_DIR_UP			  1
+#define GAME_DIR_DOWN		  2
+#define GAME_DIR_LEFT		  3
+#define GAME_DIR_RIGHT		  4
 
 
 bool game_init(int* board);
